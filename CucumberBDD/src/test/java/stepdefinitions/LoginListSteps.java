@@ -1,0 +1,79 @@
+package stepdefinitions;
+
+import java.time.Duration;
+import java.util.List;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+import io.cucumber.datatable.DataTable;
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.When;
+import io.cucumber.java.en.Then;
+import io.github.bonigarcia.wdm.WebDriverManager;
+
+public class LoginListSteps {
+
+    WebDriver driver;
+
+    @Given("I launch the browser for List")
+    public void i_launch_the_browser_for_list() {
+
+        WebDriverManager.chromedriver().setup();
+        driver = new ChromeDriver();
+        driver.manage().window().maximize();
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
+    }
+
+    @When("I open the login page for List")
+    public void i_open_the_login_page_for_list() {
+
+        driver.get("https://www.saucedemo.com/");
+    }
+
+    @When("I enter multiple username and password using List")
+    public void i_enter_multiple_username_and_password_using_list(DataTable dataTable) {
+
+        List<List<String>> data = dataTable.asLists();
+
+        for (List<String> row : data) {
+
+            // Navigate to login page before each attempt
+            driver.get("https://www.saucedemo.com/");
+
+            String username = row.get(0);
+            String password = row.get(1);
+
+            driver.findElement(By.id("user-name")).clear();
+            driver.findElement(By.id("password")).clear();
+
+            driver.findElement(By.id("user-name")).sendKeys(username);
+            driver.findElement(By.id("password")).sendKeys(password);
+
+            driver.findElement(By.id("login-button")).click();
+
+            System.out.println("Login attempted for user: " + username);
+
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            if (driver.findElements(By.cssSelector("[data-test='error']")).size() > 0) {
+                System.out.println("Login failed for user: " + username);
+            } else {
+                System.out.println("Login successful for user: " + username);
+            }
+        }
+    }
+
+    @Then("I close the browser for List")
+    public void i_close_the_browser_for_list() {
+
+        if (driver != null) {
+            driver.quit();
+        }
+    }
+}

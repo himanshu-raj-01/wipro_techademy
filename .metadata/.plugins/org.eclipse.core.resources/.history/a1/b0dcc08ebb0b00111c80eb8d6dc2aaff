@@ -1,0 +1,130 @@
+package testng;
+
+import java.time.Duration;
+import java.util.Set;
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.annotations.*;
+import io.github.bonigarcia.wdm.WebDriverManager;
+
+public class AmazonTest {
+
+    WebDriver driver;
+    WebDriverWait wait;
+
+    @BeforeClass
+    public void setup() {
+        WebDriverManager.chromedriver().setup();
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--disable-blink-features=AutomationControlled");
+        options.setExperimentalOption("excludeSwitches", new String[]{"enable-automation"});
+        
+        driver = new ChromeDriver(options);
+        driver.manage().window().maximize();
+        wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+        driver.get("https://www.amazon.in/");
+    }
+
+    @Test(priority = 1)
+    public void login() {
+        wait.until(ExpectedConditions.elementToBeClickable(By.id("nav-link-accountList"))).click();
+
+        WebElement emailField = wait.until(
+                ExpectedConditions.visibilityOfElementLocated(By.name("email")));
+        emailField.sendKeys("himanshuraj.01@outlook.com");
+        driver.findElement(By.id("continue")).click();
+
+        WebElement passwordField = wait.until(
+                ExpectedConditions.visibilityOfElementLocated(By.name("password")));
+        passwordField.sendKeys("password");
+        driver.findElement(By.id("signInSubmit")).click();
+
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.id("nav-logo-sprites")));
+    }
+
+    @Test(priority = 2, dependsOnMethods = "login")
+    public void selectCategoryAndSearch() {
+        WebElement dropdown = wait.until(
+                ExpectedConditions.presenceOfElementLocated(By.id("searchDropdownBox")));
+        Select select = new Select(dropdown);
+        select.selectByVisibleText("Electronics");
+
+        WebElement searchBox = driver.findElement(By.id("twotabsearchtextbox"));
+        searchBox.clear();
+        searchBox.sendKeys("Laptop");
+        driver.findElement(By.id("nav-search-submit-button")).click();
+
+        // Wait for results to actually load
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("div.s-main-slot")));
+    }
+
+    @Test(priority = 3, dependsOnMethods = "selectCategoryAndSearch")
+    public void addToCart() {
+        String parentWindow = driver.getWindowHandle();
+
+        // Target the first non-sponsored product title link
+        By productLink = By.xpath("//div[@data-component-type='s-search-result']//h2/a");
+        WebElement firstProduct = wait.until(ExpectedConditions.elementToBeClickable(productLink));
+
+        // Scroll to element to ensure it's not hidden under the header
+        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView({block: 'center'});", firstProduct);
+        
+        // Force click using JS in case of invisible overlays
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", firstProduct);
+
+        // ESSENTIAL: Wait for the new tab to open and switch to it
+        wait.until(ExpectedConditions.numberOfWindowsToBe(2));
+        Set<String> allWindows = driver.getWindowHandles();
+        for (String window : allWindows) {
+            if (!window.equals(parentWindow)) {
+                driver.switchTo().window(window);
+                break;
+            }
+        }
+
+        // Wait for 'Add to Cart' button on the NEW page
+        WebElement addToCartBtn = wait.until(
+                ExpectedConditions.elementToBeClickable(By.id("add-to-cart-button")));
+        
+        // Sometimes Amazon shows a 'Warranty' pop-up. We click the button directly.
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", addToCartBtn);
+
+        // Verify the cart count updated or 'Added to Cart' text appeared
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.id("nav-cart-count")));
+    }
+
+    @Test(priority = 4, dependsOnMethods = "addToCart")
+    public void checkout() {
+        // Direct navigation to the cart is the most stable way to bypass pop-ups
+        driver.get("https://www.amazon.in/gp/cart/view.html");
+
+        WebElement proceedToCheckout = wait.until(
+                ExpectedConditions.elementToBeClickable(By.name("proceedToRetailCheckout")));
+        
+        proceedToCheckout.click();
+
+        // Wait for the checkout page URL to confirm execution
+        wait.until(ExpectedConditions.urlContains("checkout"));
+    }
+
+    @Test(priority = 5, dependsOnMethods = "checkout")
+    public void logout() {
+        // Use the direct sign-out URL to ensure a clean exit
+        driver.get("https://www.amazon.in/gp/flex/sign-out.html");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.id("ap_email")));
+    }
+
+    @AfterClass
+    public void tearDown() {
+        if (driver != null) {
+            driver.quit();
+        }
+    }
+}

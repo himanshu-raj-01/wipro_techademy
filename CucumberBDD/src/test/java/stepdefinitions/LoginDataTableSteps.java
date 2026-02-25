@@ -1,0 +1,47 @@
+package stepdefinitions;
+
+import java.util.List;
+import java.util.Map;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+import io.cucumber.datatable.DataTable;
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.When;
+import io.github.bonigarcia.wdm.WebDriverManager;
+
+public class LoginDataTableSteps {
+
+    WebDriver driver;
+
+    @Given("I launch the browser for DataTable")
+    public void i_launch_the_browser_for_datatable() {
+        WebDriverManager.chromedriver().setup();
+        driver = new ChromeDriver();
+        driver.manage().window().maximize();
+    }
+
+    @When("I open the login page for DataTable")
+    public void i_open_the_login_page_for_datatable() {
+        driver.get("https://www.saucedemo.com/");
+    }
+
+    @When("I enter username and password using DataTable")
+    public void i_enter_username_and_password_using_datatable(DataTable dataTable) {
+
+        List<Map<String, String>> data = dataTable.asMaps(String.class, String.class);
+
+        String username = data.get(0).get("username");
+        String password = data.get(0).get("password");
+
+        driver.findElement(By.id("user-name")).sendKeys(username);
+        driver.findElement(By.id("password")).sendKeys(password);
+    }
+
+    @When("I click on login button for DataTable")
+    public void i_click_on_login_button_for_datatable() {
+        driver.findElement(By.id("login-button")).click();
+    }
+}

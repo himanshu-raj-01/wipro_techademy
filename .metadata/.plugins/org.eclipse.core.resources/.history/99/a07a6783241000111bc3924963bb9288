@@ -1,0 +1,101 @@
+package Rest;
+
+import org.testng.annotations.Test;
+import static org.testng.Assert.assertEquals;
+
+import io.restassured.RestAssured;
+import io.restassured.response.Response;
+
+public class TestTwo {
+
+    static String API_KEY = "reqres_8f3469576e7046fe91e506da9e0f6200";
+
+    static {
+        RestAssured.baseURI = "https://reqres.in";
+    }
+
+    // =========================
+    // GET
+    // =========================
+    @Test
+    public void testGet() {
+
+        Response response = RestAssured
+                .given()
+                .header("x-api-key", API_KEY)
+                .when()
+                .get("/api/users?page=2");
+
+        System.out.println("GET Status Code: " + response.getStatusCode());
+        System.out.println("GET Response Body: " + response.getBody().asString());
+
+        assertEquals(response.getStatusCode(), 200);
+    }
+
+    // =========================
+    // POST
+    // =========================
+    @Test
+    public void testPost() {
+
+        String requestBody = "{\n" +
+                "  \"name\": \"Himanshu\",\n" +
+                "  \"job\": \"QA Engineer\"\n" +
+                "}";
+
+        Response response = RestAssured
+                .given()
+                .header("x-api-key", API_KEY)
+                .header("Content-Type", "application/json")
+                .body(requestBody)
+                .when()
+                .post("/api/users");
+
+        System.out.println("POST Status Code: " + response.getStatusCode());
+        System.out.println("POST Response Body: " + response.getBody().asString());
+
+        assertEquals(response.getStatusCode(), 201);
+    }
+
+    // =========================
+    // PUT
+    // =========================
+    @Test
+    public void testPut() {
+
+        String requestBody = "{\n" +
+                "  \"name\": \"Himanshu Updated\",\n" +
+                "  \"job\": \"Senior QA Engineer\"\n" +
+                "}";
+
+        Response response = RestAssured
+                .given()
+                .header("x-api-key", API_KEY)
+                .header("Content-Type", "application/json")
+                .body(requestBody)
+                .when()
+                .put("/api/users/2");
+
+        System.out.println("PUT Status Code: " + response.getStatusCode());
+        System.out.println("PUT Response Body: " + response.getBody().asString());
+
+        assertEquals(response.getStatusCode(), 200);
+    }
+
+    // =========================
+    // DELETE
+    // =========================
+    @Test
+    public void testDelete() {
+
+        Response response = RestAssured
+                .given()
+                .header("x-api-key", API_KEY)
+                .when()
+                .delete("/api/users/2");
+
+        System.out.println("DELETE Status Code: " + response.getStatusCode());
+
+        assertEquals(response.getStatusCode(), 204);
+    }
+}

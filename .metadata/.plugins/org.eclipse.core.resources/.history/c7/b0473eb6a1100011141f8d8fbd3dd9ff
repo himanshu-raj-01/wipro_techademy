@@ -1,0 +1,10 @@
+Feature: Login functionality using DataTable
+
+Scenario: Login with valid credentials using DataTable
+
+  Given I launch the browser for DataTable
+  When I open the login page for DataTable
+  And I enter username and password using DataTable
+    | username      | password      |
+    | standard_user | secret_sauce  |
+  And I click on login button for DataTable

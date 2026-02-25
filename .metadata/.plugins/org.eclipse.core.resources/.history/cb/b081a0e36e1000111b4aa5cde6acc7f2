@@ -1,0 +1,30 @@
+package testing;
+
+import org.testng.annotations.Test;
+import static io.restassured.RestAssured.*;
+import static org.hamcrest.Matchers.*;
+
+public class Test_12_API_TEST_GET_ALL {
+	
+	@Test
+	public void getAll() {
+		
+		    given()
+		    
+		    .log().all()
+		    
+		    .when()
+		        .get("https://dummyjson.com/products")
+//		        .get("https://dummyjson.com/products?limit=194")
+
+		    .then()
+		    
+		    .log().all()
+		    
+		        .statusCode(200)
+		        .body("products.size()", greaterThan(0))
+		        .body("total", greaterThan(0));
+
+		}
+
+}

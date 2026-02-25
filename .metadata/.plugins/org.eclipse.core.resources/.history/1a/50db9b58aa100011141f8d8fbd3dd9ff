@@ -1,0 +1,9 @@
+Feature: Login functionality using List
+
+Scenario: Login using DataTable as List
+
+  Given I launch the browser for List
+  When I open the login page for List
+  And I enter username and password using List
+    | standard_user | secret_sauce |
+  And I click on login button for List

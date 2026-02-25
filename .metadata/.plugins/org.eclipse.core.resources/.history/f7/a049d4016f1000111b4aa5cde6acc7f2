@@ -1,0 +1,30 @@
+package testing;
+
+import org.testng.annotations.Test;
+import static io.restassured.RestAssured.*;
+//import static org.hamcrest.Matchers.*;
+
+public class Test_13_API_TEST_POST {
+	
+	@Test
+	public void post() {
+
+	    given()
+	    
+	        .header("Content-Type", "application/json")
+	        
+	        .body("{ \"title\": \"Keyboard\", \"price\": 999 }")	   
+	        
+	    .when()
+	    
+	        .post("https://dummyjson.com/products/add")
+	        
+	    .then()
+	    
+	        .log().all()  
+	        
+	        .statusCode(201);
+
+	}
+
+}

@@ -1,0 +1,23 @@
+package testng;
+
+import java.io.FileInputStream;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
+
+
+public class ExcelUtils {
+		
+	public static Object [] [] getExcelData(String path, String sheetName) throws Exception {
+		FileInputStream fis = new FileInputStream(path);
+		
+		Workbook workbook = WorkbookFactory.create(fis);
+		Sheet sheet = workbook.getSheet(sheetName);
+		int rowCount = sheet.getPhysicalNumberOfRows();
+		int colCount = sheet.getRow(0).getPhysicalNumberOfCells();
+		
+		Object[][] data = new Object[rowCount-1][colCount];
+		
+		
+	}
+}

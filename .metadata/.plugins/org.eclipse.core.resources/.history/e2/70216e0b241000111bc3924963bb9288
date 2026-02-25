@@ -1,0 +1,25 @@
+package Rest;
+
+import org.testng.annotations.Test;
+
+import io.restassured.RestAssured;
+import io.restassured.response.Response;
+
+public class TestOne {
+	
+	@Test
+	public void test1() {
+		
+		Response response = RestAssured
+				.given()
+				.header("User-Agent", "Mozilla/5.0")
+				.header("Accept", "application/json")
+				.when()
+				.get("https://reqres.in/api/users?page=2");
+		
+		System.out.println(response.getStatusCode());
+		
+		System.out.println(response.getTime());
+	}
+
+}

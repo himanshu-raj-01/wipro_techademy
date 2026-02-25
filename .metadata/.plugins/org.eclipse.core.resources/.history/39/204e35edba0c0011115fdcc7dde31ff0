@@ -1,0 +1,84 @@
+package testng;
+
+import io.github.bonigarcia.wdm.WebDriverManager;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
+import java.time.Duration;
+import java.util.List;
+
+public class test {
+    WebDriver driver;
+    WebDriverWait wait;
+
+    @BeforeMethod
+    public void setup() {
+        WebDriverManager.chromedriver().setup();
+        driver = new ChromeDriver();
+        driver.manage().window().maximize();
+        wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+    }
+
+    @Test
+    public void getHighestScorer() {
+        driver.get("https://www.cricbuzz.com/cricket-match/live-scores");
+
+        // 1. Locate and click the PAK vs NAM match
+        // We use a dynamic xpath to find the match link containing both teams
+        String matchXpath = "//a[contains(@title, 'Pakistan vs Namibia')]";
+        WebElement matchLink = wait.until(ExpectedConditions.elementToBeClickable(By.xpath(matchXpath)));
+        matchLink.click();
+
+        // 2. Click on 'Scorecard' tab
+        WebElement scorecardTab = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//a[text()='Scorecard']")));
+        scorecardTab.click();
+
+        // 3. Identify all batsmen rows in the first innings (Pakistan's innings)
+        // Cricbuzz usually groups scorecard rows in divs with class 'cb-scrd-itms'
+        List<WebElement> batsmenRows = driver.findElements(By.xpath("//div[@id='innings_1']//div[contains(@class,'cb-scrd-itms')]"));
+
+        String topBatsman = "";
+        int maxRuns = -1;
+
+        System.out.println("--- PAK vs NAM Scorecard Details ---");
+
+        for (WebElement row : batsmenRows) {
+            List<WebElement> columns = row.findElements(By.tagName("div"));
+            
+            // Typical Cricbuzz row: [Name, Dismissal, Runs, Balls, 4s, 6s, SR]
+            // We ensure it's a valid player row (at least 3 columns)
+            if (columns.size() >= 3) {
+                String name = columns.get(0).getText().trim();
+                String runsStr = columns.get(2).getText().trim();
+
+                // Skip rows that aren't players (like Extras/Total)
+                if (!name.isEmpty() && runsStr.matches("\\d+")) {
+                    int runs = Integer.parseInt(runsStr);
+                    System.out.println(name + " : " + runs);
+
+                    if (runs > maxRuns) {
+                        maxRuns = runs;
+                        topBatsman = name;
+                    }
+                }
+            }
+        }
+
+        System.out.println("------------------------------------");
+        System.out.println("Highest Scorer: " + topBatsman + " with " + maxRuns + " runs.");
+    }
+
+    @AfterMethod
+    public void tearDown() {
+        if (driver != null) {
+            driver.quit();
+        }
+    }
+}
