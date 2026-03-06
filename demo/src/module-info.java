@@ -4,5 +4,5 @@
 /**
  * 
  */
-module hr {
+module demo {
 }

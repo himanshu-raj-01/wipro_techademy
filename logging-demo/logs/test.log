@@ -1,0 +1,12 @@
+2026-03-02 12:46:59,009 INFO L.LoginTest [main] Login test started
+2026-03-02 12:46:59,013 WARN L.LoginTest [main] Login warning
+2026-03-02 12:46:59,013 ERROR L.LoginTest [main] Login failed due to invalid credentials
+2026-03-02 13:06:52,421 INFO L.LoginTest [main] Login test started
+2026-03-02 13:06:52,424 WARN L.LoginTest [main] Login warning
+2026-03-02 13:06:52,425 ERROR L.LoginTest [main] Login failed due to invalid credentials
+2026-03-02 14:47:33,803 INFO p.PaymentService [main] Payment started
+2026-03-02 14:47:33,807 WARN p.PaymentService [main] Payment processing delay
+2026-03-02 14:47:33,808 INFO p.PaymentService [main] Payment successful
+2026-03-02 14:47:54,849 INFO L.LoginTest [main] Login test started
+2026-03-02 14:47:54,860 WARN L.LoginTest [main] Login warning
+2026-03-02 14:47:54,860 ERROR L.LoginTest [main] Login failed due to invalid credentials
